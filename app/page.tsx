@@ -1,7 +1,7 @@
-"use client"
+import { Button } from "./_components/ui/button"
 
 const Home = () => {
-  return <h1>HomePage</h1>
+  return <Button>Test</Button>
 }
 
 export default Home
