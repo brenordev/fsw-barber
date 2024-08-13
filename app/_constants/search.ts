@@ -1,6 +1,6 @@
 interface QuickSearchOptions {
   imageUrl: string
-  title: String
+  title: string
 }
 
 export const quickSearchOptions: QuickSearchOptions[] = [
