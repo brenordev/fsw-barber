@@ -7,7 +7,7 @@ import { authOptions } from "../_lib/auth"
 
 const Bookings = async () => {
   const session = await getServerSession(authOptions)
-  if (!session.user) {
+  if (!session?.user) {
     notFound()
   }
 
