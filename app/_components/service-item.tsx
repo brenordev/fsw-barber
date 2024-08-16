@@ -7,14 +7,15 @@ import { Card, CardContent } from "./ui/card"
 import { Sheet, SheetContent, SheetFooter, SheetTitle } from "./ui/sheet"
 import { Calendar } from "./ui/calendar"
 import { ptBR } from "date-fns/locale"
-import { useEffect, useState } from "react"
-import { addDays, format, set } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
+import { addDays, format, isPast, isToday, set } from "date-fns"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { createBooking } from "../_actions/create-booking"
 import { getBookings } from "../_actions/get-bookings"
 import { Dialog, DialogContent } from "./ui/dialog"
 import SignInDialog from "./sign-in-dialog"
+import { AlertCircleIcon } from "lucide-react"
 
 const TIME_LIST = [
   "08:00",
@@ -26,7 +27,7 @@ const TIME_LIST = [
   "11:00",
   "11:30",
   "12:00",
-  "12:30",
+  "12:20",
   "13:00",
   "13:30",
   "14:00",
@@ -40,11 +41,20 @@ const TIME_LIST = [
   "18:00",
 ]
 
-const getTimeList = (bookings: Booking[]) => {
+interface GetTimeListProps {
+  bookings: Booking[]
+  selectedDay: Date
+}
+
+const getTimeList = ({ bookings, selectedDay }: GetTimeListProps) => {
   return TIME_LIST.filter((time) => {
     const hour = Number(time.split(":")[0])
     const minutes = Number(time.split(":")[1])
 
+    const timeIsOnThePast = isPast(set(new Date(), { hours: hour, minutes }))
+    if (timeIsOnThePast && isToday(selectedDay)) {
+      return false
+    }
     const hasBookingOnCurrentTime = bookings.some(
       (bookings) =>
         bookings.date.getHours() === hour &&
@@ -126,7 +136,13 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
       toast.error("Erro ao criar reserva")
     }
   }
-
+  const timelist = useMemo(() => {
+    if (!selectedDay) return []
+    return getTimeList({
+      bookings: dayBooking,
+      selectedDay,
+    })
+  }, [dayBooking, selectedDay])
   return (
     <>
       <Card>
@@ -163,14 +179,14 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                   Reservar
                 </Button>
                 <SheetContent className="px-0">
-                  <SheetTitle>Fazer reserva</SheetTitle>
+                  <SheetTitle className="ml-6">Fazer reserva</SheetTitle>
                   <div className="border-b border-solid py-5">
                     <Calendar
                       mode="single"
                       locale={ptBR}
                       selected={selectedDay}
                       onSelect={handleDateSelect}
-                      fromDate={addDays(new Date(), 1)}
+                      fromDate={addDays(new Date(), 0)}
                       styles={{
                         head_cell: {
                           width: "100%",
@@ -193,23 +209,37 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                         caption: {
                           textTransform: "capitalize",
                         },
+                        month: {
+                          width: "100%",
+                        },
                       }}
                     />
                   </div>
                   {selectedDay && (
                     <div className="flex gap-3 overflow-auto border-b border-solid p-5 [&::-webkit-scrollbar]:hidden">
-                      {getTimeList(dayBooking).map((time) => (
-                        <Button
-                          variant={
-                            selectedTime === time ? "default" : "outline"
-                          }
-                          key={time}
-                          className="rounded-full"
-                          onClick={() => handleTimeSelect(time)}
-                        >
-                          {time}
-                        </Button>
-                      ))}
+                      {timelist.length > 0 ? (
+                        timelist.map((time) => (
+                          <Button
+                            variant={
+                              selectedTime === time ? "default" : "outline"
+                            }
+                            key={time}
+                            className="rounded-full"
+                            onClick={() => handleTimeSelect(time)}
+                          >
+                            {time}
+                          </Button>
+                        ))
+                      ) : (
+                        <p className="w-full text-center text-xs text-red-500">
+                          <AlertCircleIcon size={20} className="mx-auto mb-1" />
+                          Não há horários disponíveis para{" "}
+                          {format(new Date(selectedDay), "EEEE, dd 'de' MMMM", {
+                            locale: ptBR,
+                          })}
+                          .
+                        </p>
+                      )}
                     </div>
                   )}
                   {selectedTime && selectedDay && (

@@ -4,8 +4,6 @@ import { db } from "../_lib/prisma"
 import { notFound } from "next/navigation"
 import BookingItem from "../_components/booking-item"
 import { authOptions } from "../_lib/auth"
-import { Button } from "../_components/ui/button"
-import Link from "next/link"
 
 const Bookings = async () => {
   const session = await getServerSession(authOptions)
@@ -53,7 +51,7 @@ const Bookings = async () => {
   return (
     <>
       <Header />
-      <div className="space-y-3 p-5">
+      <div className="space-y-6 p-5">
         <h1 className="text-xl font-bold">Agendamentos</h1>
         {confirmedBookings.length > 0 ? (
           <>
@@ -65,17 +63,13 @@ const Bookings = async () => {
             ))}
           </>
         ) : (
-          <div className="mt-2 flex-col items-center gap-3 bg-white">
+          <div className="mt-2 flex-col items-center gap-3 border-b border-solid pb-6">
+            <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+              Confirmados
+            </h2>
             <p className="mt-6 items-center text-sm text-zinc-400">
-              Você não tem nenhuma reserva confirmada no momento.
+              Atualmente, não há agendamentos disponíveis.
             </p>
-            <div className="mt-6 bg-red-500">
-              <Link href="/">
-                <Button variant="secondary" className="w-full">
-                  Voltar
-                </Button>
-              </Link>
-            </div>
           </div>
         )}
         {concludedBookings.length > 0 && (
