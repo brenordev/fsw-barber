@@ -48,10 +48,7 @@ const Home = async () => {
       <Header />
       <div className="p-5">
         <h2 className="text-xl font-bold">
-          Olá,{" "}
-          <span className="text-primary">
-            {session?.user ? session.user.name : "bem vindo"}
-          </span>
+          Olá, <span>{session?.user ? session.user.name : "bem vindo"}</span>
         </h2>
         <div className="flex items-center gap-1 text-zinc-400">
           <p className="text-sm">
@@ -103,7 +100,7 @@ const Home = async () => {
           ))}
         </div>
 
-        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+        <h2 className="mb-3 mt-3 text-xs font-bold uppercase text-gray-400">
           Recomendados
         </h2>
         <div className="flex gap-4 overflow-auto [&::-webkit-scrollbar]:hidden">
