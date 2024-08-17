@@ -17,6 +17,7 @@ import { Dialog, DialogContent } from "./ui/dialog"
 import SignInDialog from "./sign-in-dialog"
 import { AlertCircleIcon } from "lucide-react"
 import BookingSummary from "./booking-summary"
+import { useRouter } from "next/navigation"
 
 const TIME_LIST = [
   "08:00",
@@ -72,8 +73,9 @@ interface ServiceItemProps {
 }
 
 const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
-  const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false)
   const { data } = useSession()
+  const router = useRouter()
+  const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false)
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string | undefined>(
     undefined,
@@ -130,12 +132,16 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
         serviceId: service.id,
         date: selectedDate,
       })
-
       handleBookingSheetOpenChange()
-      toast.error("Reserva criada com sucesso")
+      toast.success("Reserva criada com sucesso!", {
+        action: {
+          label: "Ver agendamentos",
+          onClick: () => router.push("/bookings"),
+        },
+      })
     } catch (error) {
-      console.log(error)
-      toast.error("Erro ao criar reserva")
+      console.error(error)
+      toast.error("Erro ao criar reserva!")
     }
   }
 
